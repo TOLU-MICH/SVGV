@@ -62,4 +62,33 @@ describe("parseStyle", () => {
       opacity: 1,
     });
   });
+
+  it("does not end a quote at an escaped quote", () => {
+    expect(parseStyle('content: "a\\"; b"; opacity: 1')).toEqual({
+      content: '"a\\"; b"',
+      opacity: 1,
+    });
+  });
+
+  it("does not split on an escaped semicolon", () => {
+    expect(parseStyle("font-family: a\\;b; opacity: 1")).toEqual({
+      fontFamily: "a\\;b",
+      opacity: 1,
+    });
+  });
+
+  it("keeps bare numbers as strings where React would add px", () => {
+    expect(parseStyle("width: 10; height: 2.5")).toEqual({
+      width: "10",
+      height: "2.5",
+    });
+  });
+
+  it("uses numbers for zero, since React never adds px to it", () => {
+    expect(parseStyle("width: 0; margin: -0")).toEqual({ width: 0, margin: -0 });
+  });
+
+  it("does not treat custom properties as unitless", () => {
+    expect(parseStyle("--size: 4")).toEqual({ "--size": "4" });
+  });
 });
