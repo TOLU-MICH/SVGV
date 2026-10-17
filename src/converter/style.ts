@@ -27,10 +27,41 @@ export function toJsxStyleProperty(property: string): string {
   return camelCase(name);
 }
 
+// Splits "a: 1; b: 2" into declarations, but ignores semicolons
+// inside parentheses or quotes, e.g. url(data:image/png;base64,...).
+function splitDeclarations(css: string): string[] {
+  const declarations: string[] = [];
+  let current = "";
+  let depth = 0; // how many "(" we are currently inside
+  let quote: string | null = null; // the quote we are inside, if any
+
+  for (const char of css) {
+    if (quote) {
+      if (char === quote) {
+        quote = null; // closing quote
+      }
+    } else if (char === '"' || char === "'") {
+      quote = char; // opening quote
+    } else if (char === "(") {
+      depth++;
+    } else if (char === ")") {
+      depth = Math.max(0, depth - 1);
+    } else if (char === ";" && depth === 0) {
+      declarations.push(current); // a real separator
+      current = "";
+      continue; // don't keep the ";" itself
+    }
+    current += char;
+  }
+
+  declarations.push(current); // the last declaration has no ";" after it
+  return declarations;
+}
+
 export function parseStyle(css: string): StyleObject {
   const style: StyleObject = {};
 
-  for (const declaration of css.split(";")) {
+  for (const declaration of splitDeclarations(css)) {
     const colon = declaration.indexOf(":");
     if (colon === -1) {
       continue; // no colon, so not a real declaration

@@ -46,4 +46,20 @@ describe("parseStyle", () => {
   it("ignores empty and malformed declarations", () => {
     expect(parseStyle(";;opacity:1; broken; :red")).toEqual({ opacity: 1 });
   });
+
+  it("does not split on semicolons inside parentheses", () => {
+    expect(
+      parseStyle("background: url(data:image/png;base64,AAAA); opacity: 1"),
+    ).toEqual({
+      background: "url(data:image/png;base64,AAAA)",
+      opacity: 1,
+    });
+  });
+
+  it("does not split on semicolons inside quotes", () => {
+    expect(parseStyle('font-family: "A;B", sans-serif; opacity: 1')).toEqual({
+      fontFamily: '"A;B", sans-serif',
+      opacity: 1,
+    });
+  });
 });
