@@ -5,11 +5,11 @@ import { parseStyle, type StyleObject } from "./style";
 export interface PrintOptions {
   indent?: string; // one level of indentation, e.g. "  " or "\t"
   printWidth?: number; // opening tags longer than this get one attribute per line
+  rootAttributes?: string[]; // extra attributes for a single root element, e.g. "{...props}"
 }
 
 interface Context {
   indent: string;
-  //TODO: make this dynamic like it is on prettier
   printWidth: number;
 }
 
@@ -23,7 +23,7 @@ export function printJsx(
   };
 
   if (svgs.length === 1) {
-    return printElement(svgs[0], 0, context).join("\n");
+    return printElement(svgs[0], 0, context, options.rootAttributes).join("\n");
   }
 
   // Sibling elements are only valid JSX when wrapped in a fragment.
@@ -38,19 +38,26 @@ function printElement(
   element: ElementNode,
   depth: number,
   context: Context,
+  extraAttributes: string[] = [],
 ): string[] {
   const pad = context.indent.repeat(depth);
 
   // Text inside an element (like <title> or <text>) is whitespace-sensitive in JSX,
   // so the whole element stays on one line exactly as written.
   if (hasTextContent(element)) {
-    return [pad + printInline(element)];
+    return [pad + printInline(element, extraAttributes)];
   }
 
   // Comments and whitespace-only text are dropped, so only child elements remain.
   const children = element.children.filter((child) => child.type === "element");
   const selfClosing = children.length === 0;
-  const openTag = printOpenTag(element, selfClosing, pad, context);
+  const openTag = printOpenTag(
+    element,
+    extraAttributes,
+    selfClosing,
+    pad,
+    context,
+  );
 
   if (selfClosing) {
     return openTag;
@@ -64,11 +71,15 @@ function printElement(
 
 function printOpenTag(
   element: ElementNode,
+  extraAttributes: string[],
   selfClosing: boolean,
   pad: string,
   context: Context,
 ): string[] {
-  const attributes = printAttributes(element.attributes);
+  const attributes = [
+    ...printAttributes(element.attributes),
+    ...extraAttributes,
+  ];
   const end = selfClosing ? " />" : ">";
 
   const oneLine = `${pad}<${element.name}${attributes.map((a) => " " + a).join("")}${end}`;
@@ -93,16 +104,21 @@ function hasTextContent(element: ElementNode): boolean {
 }
 
 // Prints a whole subtree on a single line, keeping text exactly where it was.
-function printInline(node: XmlNode): string {
+function printInline(node: XmlNode, extraAttributes: string[] = []): string {
   switch (node.type) {
     case "element": {
-      const attributes = printAttributes(node.attributes)
+      const attributes = [
+        ...printAttributes(node.attributes),
+        ...extraAttributes,
+      ]
         .map((a) => " " + a)
         .join("");
       if (node.children.length === 0) {
         return `<${node.name}${attributes} />`;
       }
-      const children = node.children.map(printInline).join("");
+      const children = node.children
+        .map((child) => printInline(child))
+        .join("");
       return `<${node.name}${attributes}>${children}</${node.name}>`;
     }
     case "text":
@@ -114,7 +130,6 @@ function printInline(node: XmlNode): string {
       return ""; // removed, as the FRD requires
   }
 }
-
 // ---- attributes ----
 
 function printAttributes(attributes: Attribute[]): string[] {
