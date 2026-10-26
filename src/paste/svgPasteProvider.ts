@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
-import { convertSvgToJsx } from "../converter/convert";
 
+import { convertSvgToJsx } from "../converter/convert";
+import { autoPasteEnabledFor } from "../settings";
 export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
   // Identifies our edit: in the paste widget, in settings, and in "Paste As...".
   static readonly kind = vscode.DocumentDropOrPasteEditKind.Empty.append(
@@ -11,12 +12,19 @@ export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
   constructor(private readonly log: vscode.LogOutputChannel) {}
 
   async provideDocumentPasteEdits(
-    _document: vscode.TextDocument,
+    document: vscode.TextDocument,
     _ranges: readonly vscode.Range[],
     dataTransfer: vscode.DataTransfer,
-    _context: vscode.DocumentPasteEditContext,
+    context: vscode.DocumentPasteEditContext,
     token: vscode.CancellationToken,
   ): Promise<vscode.DocumentPasteEdit[] | undefined> {
+    // A normal paste respects the settings. An explicit "Paste As..." always converts.
+    const isNormalPaste =
+      context.triggerKind === vscode.DocumentPasteTriggerKind.Automatic;
+    if (isNormalPaste && !autoPasteEnabledFor(document)) {
+      return undefined;
+    }
+
     const text = await dataTransfer.get("text/plain")?.asString();
     if (!text || token.isCancellationRequested) {
       return undefined; // nothing to do: VS Code pastes normally

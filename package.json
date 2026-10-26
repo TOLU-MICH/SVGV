@@ -1,7 +1,16 @@
 {
   "name": "svg-v",
-  "displayName": "SvgV",
-  "description": "",
+  "displayName": "svgV: SVG to JSX",
+  "description": "Paste SVG from Figma and other design tools straight into React as clean JSX.",
+  "keywords": [
+    "svg",
+    "jsx",
+    "react",
+    "tsx",
+    "paste",
+    "figma",
+    "icons"
+  ],
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.97.0"
@@ -11,10 +20,42 @@
   ],
   "activationEvents": [
     "onLanguage:typescriptreact",
-    "onLanguage:javascriptreact"
+    "onLanguage:javascriptreact",
+    "onLanguage:javascript"
   ],
   "main": "./dist/extension.js",
-  "contributes": {},
+  "contributes": {
+    "commands": [
+      {
+        "command": "svg-v.pasteAsJsx",
+        "title": "Paste as JSX",
+        "category": "SVG to JSX"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "svg-v.pasteAsJsx",
+          "when": "editorLangId =~ /^(typescriptreact|javascriptreact|javascript)$/"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "SVG to JSX",
+      "properties": {
+        "svg-v.autoPasteEnabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Convert SVG to JSX automatically when you paste into a React file. When off, use **SVG to JSX: Paste as JSX** or **Paste As…** instead."
+        },
+        "svg-v.includeJsFiles": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Also convert pasted SVG in `.js` files. Only turn this on if your project allows JSX in `.js` files."
+        }
+      }
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "npm run check-types && npm run lint && node esbuild.js",

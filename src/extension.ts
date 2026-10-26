@@ -1,10 +1,12 @@
 import * as vscode from "vscode";
 import { SvgPasteProvider } from "./paste/svgPasteProvider";
+import { pasteAsJsx } from "./commands/pasteAsJsx";
 
-// The file types where pasted SVG becomes JSX automatically.
-const REACT_FILES: vscode.DocumentSelector = [
+// Where the paste provider runs. Whether it actually converts is decided by the settings.
+const SUPPORTED_FILES: vscode.DocumentSelector = [
   { language: "typescriptreact" }, // .tsx
   { language: "javascriptreact" }, // .jsx
+  { language: "javascript" }, // .js, only when svg-v.includeJsFiles is on
 ];
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -13,13 +15,14 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     log,
     vscode.languages.registerDocumentPasteEditProvider(
-      REACT_FILES,
+      SUPPORTED_FILES,
       new SvgPasteProvider(log),
       {
         providedPasteEditKinds: [SvgPasteProvider.kind],
         pasteMimeTypes: ["text/plain"],
       },
     ),
+    vscode.commands.registerCommand("svg-v.pasteAsJsx", pasteAsJsx),
   );
 }
 
