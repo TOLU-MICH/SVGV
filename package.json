@@ -119,7 +119,7 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit && tsc -p src/converter",
     "lint": "eslint src",
-    "test": "vscode-test",
+    "test": "vitest run --dir src/converter && vscode-test",
     "test:unit": "vitest run --dir src/converter",
     "test:unit:watch": "vitest --dir src/converter"
   },
