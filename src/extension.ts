@@ -11,7 +11,7 @@ const SUPPORTED_FILES: vscode.DocumentSelector = [
 ];
 
 export function activate(context: vscode.ExtensionContext): void {
-  const log = vscode.window.createOutputChannel("SVG to JSX", { log: true });
+  const log = vscode.window.createOutputChannel("svgV", { log: true });
 
   context.subscriptions.push(
     log,

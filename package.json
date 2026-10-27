@@ -29,12 +29,12 @@
       {
         "command": "svg-v.pasteAsJsx",
         "title": "Paste as JSX",
-        "category": "SVG to JSX"
+        "category": "svgV"
       },
       {
         "command": "svg-v.pasteAsComponent",
         "title": "Paste as Component",
-        "category": "SVG to JSX"
+        "category": "svgV"
       }
     ],
     "menus": {
@@ -46,12 +46,12 @@
       ]
     },
     "configuration": {
-      "title": "SVG to JSX",
+      "title": "svgV",
       "properties": {
         "svg-v.autoPasteEnabled": {
           "type": "boolean",
           "default": true,
-          "markdownDescription": "Convert SVG to JSX automatically when you paste into a React file. When off, use **SVG to JSX: Paste as JSX** or **Paste As…** instead."
+          "markdownDescription": "Convert SVG to JSX automatically when you paste into a React file. When off, use **svgV: Paste as JSX** or **Paste As…** instead."
         },
         "svg-v.includeJsFiles": {
           "type": "boolean",
