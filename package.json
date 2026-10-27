@@ -3,7 +3,7 @@
   "displayName": "svgV: SVG to JSX",
   "description": "Paste SVG from Figma and other design tools straight into React as clean JSX.",
   "version": "0.1.0",
-  "publisher": "YOUR-PUBLISHER-ID",
+  "publisher": "TOLU-MICH",
   "license": "MIT",
   "icon": "images/icon.png",
   "galleryBanner": {
