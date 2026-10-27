@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { SVG_PROPS_IMPORT, svgPropsImportInsertion } from "./imports";
+import {
+  SVG_PROPS_IMPORT,
+  placeSvgPropsImport,
+  svgPropsImportInsertion,
+} from "./imports";
 
 // Applies the insertion, so tests can compare whole files.
 function withImport(source: string): string {
@@ -75,5 +79,37 @@ describe("svgPropsImportInsertion", () => {
     "import { useState, SVGProps } from 'react';",
   ])("does nothing when it is already imported: %s", (existing) => {
     expect(svgPropsImportInsertion(`${existing}\nconst x = 1;`)).toBeNull();
+  });
+
+  describe("placeSvgPropsImport", () => {
+    it("puts the import in front of the component in an empty file", () => {
+      expect(placeSvgPropsImport("", 0)).toEqual({
+        kind: "prefix",
+        text: `${SVG_PROPS_IMPORT}\n\n`,
+      });
+    });
+
+    it("puts the import in front of the component when pasting above the imports", () => {
+      const source = lines("", "import { useState } from 'react';");
+      expect(placeSvgPropsImport(source, 0)).toMatchObject({ kind: "prefix" });
+    });
+
+    it("uses a separate edit when pasting below the imports", () => {
+      const source = lines("import { useState } from 'react';", "", "");
+      expect(placeSvgPropsImport(source, source.length)).toEqual({
+        kind: "separate",
+        insertion: {
+          offset: "import { useState } from 'react';".length,
+          text: `\n${SVG_PROPS_IMPORT}`,
+        },
+      });
+    });
+
+    it("does nothing when the file already imports SVGProps", () => {
+      const source = lines("import type { SVGProps } from 'react';", "", "");
+      expect(placeSvgPropsImport(source, source.length)).toEqual({
+        kind: "none",
+      });
+    });
   });
 });

@@ -47,8 +47,13 @@ export async function pasteAsComponent(): Promise<void> {
     name = answer;
   }
 
-  const code = componentCode(editor.document, svg, name, settings);
-
+  const code = componentCode(
+    editor.document,
+    svg,
+    name,
+    settings,
+    editor.selection.start,
+  );
   // One WorkspaceEdit = one undo step. The snippet edit gets the same
   // indentation handling as a paste; appendText escapes "$" and "}" for us.
   const edits: Array<vscode.TextEdit | vscode.SnippetTextEdit> = [

@@ -20,7 +20,7 @@ export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
 
   async provideDocumentPasteEdits(
     document: vscode.TextDocument,
-    _ranges: readonly vscode.Range[],
+    ranges: readonly vscode.Range[],
     dataTransfer: vscode.DataTransfer,
     context: vscode.DocumentPasteEditContext,
     token: vscode.CancellationToken,
@@ -38,7 +38,7 @@ export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
     }
 
     try {
-      return this.createEdits(document, text);
+      return this.createEdits(document, ranges[0].start, text);
     } catch (error) {
       // A bug in our converter must never cost the user their paste.
       this.log.error(
@@ -51,6 +51,7 @@ export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
 
   private createEdits(
     document: vscode.TextDocument,
+    at: vscode.Position,
     text: string,
   ): vscode.DocumentPasteEdit[] | undefined {
     const svgs = findSvgElements(text);
@@ -72,7 +73,7 @@ export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
     }
 
     const settings = readSettings(document);
-    const component = this.createComponentEdit(document, svgs[0], settings);
+    const component = this.createComponentEdit(document, svgs[0], settings, at);
 
     // VS Code applies the first edit and offers the rest in the paste widget.
     return settings.outputFormat === "component"
@@ -84,6 +85,7 @@ export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
     document: vscode.TextDocument,
     svg: ElementNode,
     settings: Settings,
+    at: vscode.Position,
   ): vscode.DocumentPasteEdit {
     // A normal paste never interrupts the user with a prompt, so the name is always inferred.
     const code = componentCode(
@@ -91,6 +93,7 @@ export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
       svg,
       inferComponentName(svg),
       settings,
+      at,
     );
     const edit = new vscode.DocumentPasteEdit(
       code.text,
