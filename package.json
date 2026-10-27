@@ -30,6 +30,11 @@
         "command": "svg-v.pasteAsJsx",
         "title": "Paste as JSX",
         "category": "SVG to JSX"
+      },
+      {
+        "command": "svg-v.pasteAsComponent",
+        "title": "Paste as Component",
+        "category": "SVG to JSX"
       }
     ],
     "menus": {
@@ -52,6 +57,52 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "Also convert pasted SVG in `.js` files. Only turn this on if your project allows JSX in `.js` files."
+        },
+        "svg-v.prettierEnabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Format the output with Prettier if it's installed."
+        },
+        "svg-v.outputFormat": {
+          "type": "string",
+          "enum": [
+            "inline",
+            "component"
+          ],
+          "enumDescriptions": [
+            "Paste SVG as inline JSX.",
+            "Paste SVG as a React component with an inferred name."
+          ],
+          "default": "inline",
+          "markdownDescription": "What a normal paste inserts. The other option is always available from the paste widget (`Cmd+.` / `Ctrl+.` right after pasting)."
+        },
+        "svg-v.language": {
+          "type": "string",
+          "enum": [
+            "infer",
+            "js",
+            "ts"
+          ],
+          "enumDescriptions": [
+            "Typed components in `.tsx` files, untyped elsewhere.",
+            "Always untyped.",
+            "Always typed with `SVGProps<SVGSVGElement>`."
+          ],
+          "default": "infer",
+          "markdownDescription": "Whether generated components include TypeScript types."
+        },
+        "svg-v.componentNaming": {
+          "type": "string",
+          "enum": [
+            "prompt",
+            "infer"
+          ],
+          "enumDescriptions": [
+            "Ask for a name, suggesting one from the SVG's title or id.",
+            "Use the suggested name without asking."
+          ],
+          "default": "prompt",
+          "markdownDescription": "How **Paste as Component** names the component. A normal paste always uses the suggested name."
         }
       }
     }

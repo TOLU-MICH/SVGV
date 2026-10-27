@@ -5,7 +5,7 @@ import {
   isValidComponentName,
   printComponent,
   toComponentName,
-} from "./components";
+} from "./component";
 import type { ElementNode } from "./parser";
 
 const lines = (...rows: string[]) => rows.join("\n");

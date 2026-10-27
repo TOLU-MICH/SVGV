@@ -15,6 +15,6 @@ export async function pasteAsJsx(): Promise<void> {
   // Reuse VS Code's own "Paste As..." with our edit kind: same conversion,
   // same indentation handling and same single undo step as a normal paste.
   await vscode.commands.executeCommand("editor.action.pasteAs", {
-    kind: SvgPasteProvider.kind.value,
+    kind: SvgPasteProvider.inlineKind.value,
   });
 }
