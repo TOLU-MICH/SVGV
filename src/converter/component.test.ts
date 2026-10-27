@@ -5,6 +5,7 @@ import {
   isValidComponentName,
   printComponent,
   toComponentName,
+  uniqueComponentName,
 } from "./component";
 import type { ElementNode } from "./parser";
 
@@ -98,5 +99,26 @@ describe("component names", () => {
     expect(isValidComponentName("arrowIcon")).toBe(false);
     expect(isValidComponentName("Arrow Icon")).toBe(false);
     expect(isValidComponentName("")).toBe(false);
+  });
+});
+
+describe("uniqueComponentName", () => {
+  it("keeps a name that is not used yet", () => {
+    expect(uniqueComponentName("SvgIcon", "const x = 1;")).toBe("SvgIcon");
+  });
+
+  it("adds a number when the name is taken", () => {
+    expect(uniqueComponentName("SvgIcon", "export function SvgIcon() {}")).toBe(
+      "SvgIcon2",
+    );
+  });
+
+  it("keeps counting until it finds a free name", () => {
+    const source = "function SvgIcon() {}\nfunction SvgIcon2() {}";
+    expect(uniqueComponentName("SvgIcon", source)).toBe("SvgIcon3");
+  });
+
+  it("only counts whole words", () => {
+    expect(uniqueComponentName("Icon", "function SvgIcon() {}")).toBe("Icon");
   });
 });

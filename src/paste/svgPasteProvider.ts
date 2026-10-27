@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
 import type { ElementNode } from "../converter/parser";
-import { findSvgElements } from "../converter/detect";
+import { detectSvg } from "../converter/detect";
 import { printJsx } from "../converter/print";
-import { inferComponentName } from "../converter/component";
+import {
+  inferComponentName,
+  uniqueComponentName,
+} from "../converter/component";
 import { autoPasteEnabledFor, readSettings, type Settings } from "../settings";
 import { componentCode } from "./componentCode";
 
@@ -38,7 +41,7 @@ export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
     }
 
     try {
-      return this.createEdits(document, ranges[0].start, text);
+      return this.createEdits(document, ranges[0].start, text, isNormalPaste);
     } catch (error) {
       // A bug in our converter must never cost the user their paste.
       this.log.error(
@@ -53,11 +56,22 @@ export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
     document: vscode.TextDocument,
     at: vscode.Position,
     text: string,
+    isNormalPaste: boolean,
   ): vscode.DocumentPasteEdit[] | undefined {
-    const svgs = findSvgElements(text);
-    if (svgs === null) {
-      return undefined; // not SVG: VS Code pastes normally
+    const detection = detectSvg(text);
+
+    if (detection.kind === "invalid" && isNormalPaste) {
+      // FRD: paste the raw text, and say briefly why it wasn't converted.
+      vscode.window.setStatusBarMessage(
+        "$(warning) svg-v: couldn't convert this SVG, so it was pasted as-is",
+        5000,
+      );
+      this.log.warn(`Pasted SVG as-is: ${detection.reason}`);
     }
+    if (detection.kind !== "svg") {
+      return undefined; // VS Code pastes normally
+    }
+    const svgs = detection.svgs;
 
     // One tab per level: VS Code converts it to the file's indentation
     // and lines the pasted block up with the current line.
@@ -88,13 +102,11 @@ export class SvgPasteProvider implements vscode.DocumentPasteEditProvider {
     at: vscode.Position,
   ): vscode.DocumentPasteEdit {
     // A normal paste never interrupts the user with a prompt, so the name is always inferred.
-    const code = componentCode(
-      document,
-      svg,
+    const name = uniqueComponentName(
       inferComponentName(svg),
-      settings,
-      at,
+      document.getText(),
     );
+    const code = componentCode(document, svg, name, settings, at);
     const edit = new vscode.DocumentPasteEdit(
       code.text,
       "Insert SVG as component",

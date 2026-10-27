@@ -78,3 +78,18 @@ function textOf(element: ElementNode): string {
     .map((child) => (child.type === "text" ? child.value : ""))
     .join("");
 }
+
+/** True if `name` already appears as a whole word anywhere in the source. */
+export function isNameUsed(name: string, source: string): boolean {
+  // Safe to put in a regex: valid component names contain only letters and digits.
+  return new RegExp(`\\b${name}\\b`).test(source);
+}
+
+/** Returns `name`, or `name2`, `name3`... if it is already used in the source. */
+export function uniqueComponentName(name: string, source: string): string {
+  let candidate = name;
+  for (let n = 2; isNameUsed(candidate, source); n++) {
+    candidate = `${name}${n}`;
+  }
+  return candidate;
+}

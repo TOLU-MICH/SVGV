@@ -1,11 +1,13 @@
 import * as vscode from "vscode";
-import { findSvgElements } from "../converter/detect";
 import {
   inferComponentName,
+  isNameUsed,
   isValidComponentName,
+  uniqueComponentName,
 } from "../converter/component";
 import { componentCode } from "../paste/componentCode";
 import { readSettings } from "../settings";
+import { readClipboardSvg } from "./clipboardSvg";
 
 export async function pasteAsComponent(): Promise<void> {
   const editor = vscode.window.activeTextEditor;
@@ -13,11 +15,8 @@ export async function pasteAsComponent(): Promise<void> {
     return;
   }
 
-  const svgs = findSvgElements(await vscode.env.clipboard.readText());
+  const svgs = await readClipboardSvg();
   if (svgs === null) {
-    void vscode.window.showWarningMessage(
-      "The clipboard does not contain SVG markup.",
-    );
     return;
   }
   if (svgs.length > 1) {
@@ -29,17 +28,27 @@ export async function pasteAsComponent(): Promise<void> {
 
   const svg = svgs[0];
   const settings = readSettings(editor.document);
-  let name = inferComponentName(svg);
+  const source = editor.document.getText();
+  let name = uniqueComponentName(inferComponentName(svg), source);
 
   if (settings.componentNaming === "prompt") {
     const answer = await vscode.window.showInputBox({
       title: "Paste as Component",
       prompt: "Component name",
       value: name,
-      validateInput: (value) =>
-        isValidComponentName(value)
-          ? undefined
-          : "Start with a capital letter, then use only letters and digits.",
+      validateInput: (value) => {
+        if (!isValidComponentName(value)) {
+          return "Start with a capital letter, then use only letters and digits."; // blocks Enter
+        }
+        if (isNameUsed(value, source)) {
+          // A warning still lets the user press Enter: they may be replacing the old one.
+          return {
+            message: `${value} is already used in this file.`,
+            severity: vscode.InputBoxValidationSeverity.Warning,
+          };
+        }
+        return undefined;
+      },
     });
     if (answer === undefined) {
       return; // Escape cancels the whole command
@@ -54,6 +63,7 @@ export async function pasteAsComponent(): Promise<void> {
     settings,
     editor.selection.start,
   );
+
   // One WorkspaceEdit = one undo step. The snippet edit gets the same
   // indentation handling as a paste; appendText escapes "$" and "}" for us.
   const edits: Array<vscode.TextEdit | vscode.SnippetTextEdit> = [

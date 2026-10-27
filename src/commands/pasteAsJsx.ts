@@ -1,14 +1,10 @@
 import * as vscode from "vscode";
-import { findSvgElements } from "../converter/detect";
 import { SvgPasteProvider } from "../paste/svgPasteProvider";
+import { readClipboardSvg } from "./clipboardSvg";
 
 export async function pasteAsJsx(): Promise<void> {
   // Check first, so the user gets a clear message instead of VS Code's generic one.
-  const text = await vscode.env.clipboard.readText();
-  if (findSvgElements(text) === null) {
-    void vscode.window.showWarningMessage(
-      "The clipboard does not contain SVG markup.",
-    );
+  if ((await readClipboardSvg()) === null) {
     return;
   }
 
