@@ -1,9 +1,14 @@
-# Change Log
+# Changelog
 
-All notable changes to the "svg-v" extension will be documented in this file.
+All notable changes to svg-v are documented here.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [0.1.0] - 2026-10-27
 
-## [Unreleased]
+### Added
 
-- Initial release
+- Pasting SVG into `.tsx` and `.jsx` files converts it to JSX automatically.
+- **svg-v: Paste as JSX** and **svg-v: Paste as Component** commands.
+- Typed components with `SVGProps<SVGSVGElement>` and an automatic `import type`.
+- Option to switch between JSX, component and the original SVG right after pasting.
+- Opt-in support for `.js` files.
+- Settings: `autoPasteEnabled`, `outputFormat`, `language`, `componentNaming`, `includeJsFiles`.

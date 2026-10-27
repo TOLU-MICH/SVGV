@@ -2,6 +2,25 @@
   "name": "svg-v",
   "displayName": "svgV: SVG to JSX",
   "description": "Paste SVG from Figma and other design tools straight into React as clean JSX.",
+  "version": "0.1.0",
+  "publisher": "YOUR-PUBLISHER-ID",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#2E2A8F",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TOLU-MICH/SVGV.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TOLU-MICH/SVGV/issues"
+  },
+  "homepage": "https://github.com/TOLU-MICH/SVGV#readme",
+  "categories": [
+    "Other"
+  ],
   "keywords": [
     "svg",
     "jsx",
@@ -9,15 +28,13 @@
     "tsx",
     "paste",
     "figma",
-    "icons"
+    "icons",
+    "convert",
+    "component"
   ],
-  "version": "0.0.1",
   "engines": {
     "vscode": "^1.97.0"
   },
-  "categories": [
-    "Other"
-  ],
   "activationEvents": [
     "onLanguage:typescriptreact",
     "onLanguage:javascriptreact",
@@ -129,6 +146,7 @@
     "@types/vscode": "^1.97.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
+    "@vscode/vsce": "^4.0.0",
     "esbuild": "^0.28.1",
     "eslint": "^10.5.0",
     "npm-run-all": "^4.1.5",

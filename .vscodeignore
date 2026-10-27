@@ -13,3 +13,7 @@ vsc-extension-quickstart.md
 **/*.ts
 **/.vscode-test.*
 tsconfig.unit.json
+images/icon.svg
+RELEASE_CHECKLIST.md
+.prettierignore
+images/demo.gif
